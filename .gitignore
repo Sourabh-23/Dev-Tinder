@@ -2,3 +2,5 @@ node_modules
 .postman/config.json
 postman/globals/
 src/routesHomework.md
+node_modules
+.env
