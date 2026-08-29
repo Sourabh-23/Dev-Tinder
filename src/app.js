@@ -64,12 +64,21 @@ app.delete("/user", async (req, res) => {
         res.status(400).send("Something went wrong " + err.message);
     }
 });
-// Update data of the user
-app.patch("/user", async (req, res) => {
-    const userId = req.body.userId;
-    const data = req.body;
 
+app.patch("/user/:userId", async (req, res) => {
+    const userId = req.params.userId;
+    const data = req.body;
     try {
+         const  ALLOWED_UPDAT =[
+        "photourl",
+        "about",
+        "skills",
+        "age"
+    ]
+   const isUpdateAllowed = Object.keys(data).every((key) => ALLOWED_UPDAT.includes(key));
+    if (!isUpdateAllowed) {
+       throw new Error("Invalid updates!");
+    }
         const user = await User.findByIdAndUpdate({ _id: userId }, data, {
             returnDocument: "after",
             runValidators: true,

@@ -42,7 +42,13 @@ const userSchema = new mongoose.Schema({
         default: "This is default about the user"
     },
     skills: {
-        type: [String]
+        type: [String],
+        validate: {
+            validator: function (value) {
+                return value.length <= 10;
+            },
+            message: "You can add a maximum of 10 skills only"
+        }
     }
 }, {
     timestamps: true    // ← ye SECOND argument hai, schema fields ke bahar
