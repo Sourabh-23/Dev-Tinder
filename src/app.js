@@ -29,8 +29,8 @@ app.post("/signup", async (req, res) => {
 
         await user.save();
         res.send("User created successfully");
-    } catch (e) {
-        res.status(400).send("User cannot be created : " + e.message);
+    } catch (err) {
+        res.status(400).send("User cannot be created : " + err.message);
     }
 });
 
@@ -95,6 +95,26 @@ app.patch("/user/:userId", async (req, res) => {
         res.status(400).send("Update failed " + err.message);
     }
 });
+
+app.post("/login", async (req, res) => {
+    try {
+        const { email, password } = req.body;
+
+        const user = await User.findOne({ email });   
+        if (!user) {
+            return res.status(404).send("Invalid Credentials");
+        }
+
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+        if (!isPasswordValid) {
+            return res.status(401).send("Invalid Credentials.");
+        }
+
+        res.send("Login successful");
+    } catch (err) {
+        res.status(400).send("Something went wrong " + err.message);
+    }
+}); 
 
 
 connectDB()
