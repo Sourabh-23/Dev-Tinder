@@ -2,6 +2,9 @@ const express = require('express');
 const connectDB = require('./config/database');
 const app = express();
 const User = require('./models/user');
+const { validateSignupData } = require('./utils/validation');
+
+
 app.use(express.json());
 
 
@@ -9,17 +12,18 @@ app.use(express.json());
 
 app.post("/signup",async (req,res)=>{
     console.log("Request body : ", req.body);
-// const user = new User({
-//     firstName: req.body.firstName,
-//     lastName: req.body.lastName,
-//     email: req.body.email,
-//     password: req.body.password,
-//     age: req.body.age    
-// });
+
+ try{
+
+   // validation of data
+   validateSignupData(req);
+
+    // encrypt password
+
 
 const user = new User(req.body);
 
-try{
+
     await user.save()
     res.send("User created successfully");
 }catch(e){
