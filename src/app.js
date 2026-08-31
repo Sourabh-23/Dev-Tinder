@@ -4,15 +4,18 @@ const app = express();
 const User = require('./models/user');
 const { validateSignupData } = require('./utils/validation');
 const bcrypt = require('bcrypt');
+const cookieParser = require('cookie-parser');
+const jwt = require('jsonwebtoken');
 
 
 app.use(express.json());
+app.use(cookieParser());
 
 
 
 
 app.post("/signup", async (req, res) => {
-    console.log("Request body : ", req.body);
+   // console.log("Request body : ", req.body);
 
     try {
         validateSignupData(req);
@@ -89,7 +92,7 @@ app.patch("/user/:userId", async (req, res) => {
             returnDocument: "after",
             runValidators: true,
         });
-        console.log(user);
+      //  console.log(user);
         res.send("User updated successfully");
     } catch (err) {
         res.status(400).send("Update failed " + err.message);
@@ -106,15 +109,56 @@ app.post("/login", async (req, res) => {
         }
 
         const isPasswordValid = await bcrypt.compare(password, user.password);
-        if (!isPasswordValid) {
-            return res.status(401).send("Invalid Credentials.");
-        }
+        
+        if (isPasswordValid) {
 
-        res.send("Login successful");
+        const token = await jwt.sign({
+            id: user._id},"DevTinder@2026");
+         //   console.log(token);
+
+        
+
+          res.cookie("token", token);
+          res.send("Login successful");
+        } else {
+            res.status(404).send("Invalid Credentials");
+        }
     } catch (err) {
         res.status(400).send("Something went wrong " + err.message);
     }
 }); 
+
+app.get("/profile", async (req, res) => {
+ try{ 
+    const cookies = req.cookies;
+
+
+const {token} = cookies;
+if(!token){
+    throw new Error("You are not logged in");
+}
+
+// validate token
+
+    const decodedMessage = await jwt.verify(token, "DevTinder@2026");
+    
+  // console.log(decodedMessage);
+   const {id } = decodedMessage;
+ // console.log("logged in usr is",id);
+
+
+   const user = await User.findById(id);
+   if(!user){
+       throw new Error("User not found");
+   }
+  // console.log(user);
+
+    //console.log("Cookies : ", cookies);
+    res.send("REading cookie");
+}catch(err){
+    res.status(400).send("Something went wrong " + err.message);
+}
+})
 
 
 connectDB()
