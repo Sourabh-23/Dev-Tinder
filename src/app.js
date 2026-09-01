@@ -6,6 +6,7 @@ const { validateSignupData } = require('./utils/validation');
 const bcrypt = require('bcrypt');
 const cookieParser = require('cookie-parser');
 const jwt = require('jsonwebtoken');
+const { userAuth } = require("../middlewares/auth");
 
 
 app.use(express.json());
@@ -113,12 +114,14 @@ app.post("/login", async (req, res) => {
         if (isPasswordValid) {
 
         const token = await jwt.sign({
-            id: user._id},"DevTinder@2026");
+            id: user._id},"DevTinder@2026",{expiresIn: "1d"});
          //   console.log(token);
 
         
 
-          res.cookie("token", token);
+          res.cookie("token", token, { 
+            expires: new Date(Date.now() + 8 * 3600000), // 8 hours
+         });
           res.send("Login successful");
         } else {
             res.status(404).send("Invalid Credentials");
@@ -128,37 +131,27 @@ app.post("/login", async (req, res) => {
     }
 }); 
 
-app.get("/profile", async (req, res) => {
+app.get("/profile",userAuth, async (req, res) => {
  try{ 
-    const cookies = req.cookies;
+  const user = req.user;
+   console.log(`User from profile route: ${user}`);
 
-
-const {token} = cookies;
-if(!token){
-    throw new Error("You are not logged in");
-}
-
-// validate token
-
-    const decodedMessage = await jwt.verify(token, "DevTinder@2026");
-    
-  // console.log(decodedMessage);
-   const {id } = decodedMessage;
- // console.log("logged in usr is",id);
-
-
-   const user = await User.findById(id);
-   if(!user){
-       throw new Error("User not found");
-   }
-  // console.log(user);
-
-    //console.log("Cookies : ", cookies);
-    res.send("REading cookie");
+res.send(user);
 }catch(err){
     res.status(400).send("Something went wrong " + err.message);
 }
-})
+});
+
+app.post("/sendConnectionRequest",userAuth, async (req, res) => {
+
+const user = req.user;
+
+    console.log("Sending connection request from app.js route");
+
+    res.send(user.firstName + " " + user.lastName + " sent a connection request to ");
+
+
+});
 
 
 connectDB()
