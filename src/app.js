@@ -9,6 +9,7 @@ const jwt = require('jsonwebtoken');
 const { userAuth } = require("../middlewares/auth");
 
 
+
 app.use(express.json());
 app.use(cookieParser());
 
@@ -16,7 +17,6 @@ app.use(cookieParser());
 
 
 app.post("/signup", async (req, res) => {
-   // console.log("Request body : ", req.body);
 
     try {
         validateSignupData(req);
@@ -109,16 +109,12 @@ app.post("/login", async (req, res) => {
             return res.status(404).send("Invalid Credentials");
         }
 
-        const isPasswordValid = await bcrypt.compare(password, user.password);
+        const isPasswordValid = await user.validatePassword(password);
         
         if (isPasswordValid) {
 
-        const token = await jwt.sign({
-            id: user._id},"DevTinder@2026",{expiresIn: "1d"});
-         //   console.log(token);
-
-        
-
+        const token = await user.getJwt();
+   
           res.cookie("token", token, { 
             expires: new Date(Date.now() + 8 * 3600000), // 8 hours
          });
