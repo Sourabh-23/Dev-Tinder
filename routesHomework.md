@@ -520,6 +520,10 @@ Then a protected route like profile is accessed only if the token is valid
 
 # Episode-11 | Diving into the APIs and express Router
 
-- explore tinder apis
-- create a list all api you can think in dev tinder
-- group multiplle routes under res routers
+- Explore tinder APIs
+- Create a list all API you can think of in Dev Tinder
+- Group multiple routes under respective routers
+- Read documentation for express.Router
+- Create routes folder for managing auth, profile, request routers
+- Create authRouter, profileRouter, requestRouter
+- Import these routers in app.js
