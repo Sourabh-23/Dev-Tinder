@@ -22,9 +22,9 @@ app.post("/signup", async (req, res) => {
         validateSignupData(req);
 
         const { firstName, lastName, email, password } = req.body;
-        const passwordHash = await bcrypt.hash(password, 10);
+        const passwordHash = await bcrypt.hash(password, 10);  //1
 
-        const user = new User({
+        const user = new User({ //2
             firstName,
             lastName,
             email,
@@ -102,19 +102,21 @@ app.patch("/user/:userId", async (req, res) => {
 
 app.post("/login", async (req, res) => {
     try {
-        const { email, password } = req.body;
+        const { email, password } = req.body; //3
 
         const user = await User.findOne({ email });   
         if (!user) {
             return res.status(404).send("Invalid Credentials");
         }
 
-        const isPasswordValid = await user.validatePassword(password);
+        const isPasswordValid = await user.validatePassword(password);  //4
         
         if (isPasswordValid) {
 
-        const token = await user.getJwt();
-   
+        const token = await user.getJwt();  //6
+     
+
+        //8
           res.cookie("token", token, { 
             expires: new Date(Date.now() + 8 * 3600000), // 8 hours
          });
