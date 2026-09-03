@@ -527,3 +527,6 @@ Then a protected route like profile is accessed only if the token is valid
 - Create routes folder for managing auth, profile, request routers
 - Create authRouter, profileRouter, requestRouter
 - Import these routers in app.js
+
+
+# Episode-12 | Logical DB Query & Compound Indexes
