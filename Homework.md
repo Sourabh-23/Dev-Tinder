@@ -530,3 +530,19 @@ Then a protected route like profile is accessed only if the token is valid
 
 
 # Episode-12 | Logical DB Query & Compound Indexes
+- Create POST /logout API
+- Create PATCH /profile/edit
+- Create PATCH /profile/password API — forgot password API
+- Make you validate all data in every POST, PATCH APIs
+- Send Connection Request API
+- Proper validation of Data
+- Think about ALL corner cases
+- $or query and grouping in Mongoose
+- sCEHMA.PRE("SAVE) function
+- Read more about indexes in MongoDB
+- Why do we need index in DB?
+- What is the advantages and disadvantages of creating?
+  Read this article about compound indexes —
+  https://www.mongodb.com/docs/manual/core/index-types/index-compound/
+  - Create Connection Request Schema
+
