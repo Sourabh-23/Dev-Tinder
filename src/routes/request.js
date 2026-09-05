@@ -59,4 +59,43 @@ requestRouter.post(
   },
 );
 
+requestRouter.post(
+  "/request/respond/:status/:requestId",     // route path — status aur requestId URL se aayenge
+  userAuth,                                  // middlewares/auth.js -> req.user set karta hai
+  async (req, res) => {
+    try {
+      const loggedInUserId = req.user._id;   // models/user.js -> User document ki _id (login wale user ki)
+      const { status, requestId } = req.params;   // URL params se aaye
+
+      const allowedStatuses = ["accepted", "rejected"];
+      if (!allowedStatuses.includes(status)) {
+        return res.status(400).send({ error: "Invalid status value" });
+      }
+
+      const connectionRequest = await ConnectionRequestModel.findOne({   // ConnectionRequestModel -> models/connectionRequest.js
+        _id: requestId,             // connectionRequest.js schema field: _id (MongoDB auto-generated)
+        toUserId: loggedInUserId,   // connectionRequest.js schema field: toUserId
+        status: "interested"        // connectionRequest.js schema field: status
+      });
+
+      if (!connectionRequest) {
+        return res.status(404).json({ message: "Connection request not found or already responded" });
+      }
+
+      connectionRequest.status = status;         // connectionRequest.js schema field: status (update kar diya)
+      const data = await connectionRequest.save();   // mongoose method — DB mein save karta hai
+
+      res.json({
+        message: `Connection request ${status}`,
+        data
+      });
+
+    } catch (err) {
+      res.status(400).send({ error: err.message });
+    }
+  }
+);
+
+
+
 module.exports = requestRouter;
