@@ -2,6 +2,7 @@ const express = require('express');
 const userRouter = express.Router();
 const { userAuth } = require("../../middlewares/auth");
 const ConnectionRequestModel = require("../models/connectionRequest");
+const UserModel = require("../models/user");
 const USER_SAFE_DATA = "firstName lastName photourl about";
 // Get all pending connection requests for a user
 
@@ -50,6 +51,53 @@ userRouter.get("/user/connections", userAuth, async (req, res) => {
     res.json({ data });
   } catch (err) {
     res.status(400).send({ message: err.message });
+  }
+});
+
+userRouter.get("/feed", userAuth, async (req, res) => {
+  try {
+    const loggedInUser = req.user;
+
+    const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
+    let limit = parseInt(req.query.limit, 10) || 10;
+    limit = Math.min(Math.max(limit, 1), 50);
+    const skip = (page - 1) * limit;
+
+    const connectionRequests = await ConnectionRequestModel.find({
+      $or: [{ fromUserId: loggedInUser._id }, { toUserId: loggedInUser._id }],
+    }).select("fromUserId  toUserId");
+
+    const hideUsersFromFeed = new Set();
+    connectionRequests.forEach((req) => {
+      hideUsersFromFeed.add(req.fromUserId.toString());
+      hideUsersFromFeed.add(req.toUserId.toString());
+    });
+
+      const filter = {
+      $and: [
+        { _id: { $nin: Array.from(hideUsersFromFeed) } },
+        { _id: { $ne: loggedInUser._id } },
+      ],
+    };
+
+    const totalCount = await UserModel.countDocuments(filter);   // ← ye ek line add ki
+
+
+    console.log("hideUsersFromFeed", hideUsersFromFeed);
+
+    const users = await UserModel.find({
+      $and: [
+       { _id: { $nin: Array.from(hideUsersFromFeed) } },
+        { _id: { $ne: loggedInUser._id } },
+      ],
+    })
+      .select(USER_SAFE_DATA)
+      .skip(skip)
+      .limit(limit);
+
+    res.json({ totalCount, data: users });
+  } catch (err) {
+    res.status(400).json({ message: err.message });
   }
 });
 

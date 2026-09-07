@@ -544,7 +544,21 @@ Then a protected route like profile is accessed only if the token is valid
 - What is the advantages and disadvantages of creating?
   Read this article about compound indexes —
   https://www.mongodb.com/docs/manual/core/index-types/index-compound/
-  - Create Connection Request Schema
+
+  # 12 ref, Populate & Thought process of writing APIs
+ - Create Connection Request Schema
+ ALWAYS THINK ABOUT CORNER CASES 
+ - Write code with proper validations for POST /request/review/:status/:requestId
+ - Thought process - POST vs GET 
+ - Read about ref and populate https://mongoosejs.com/docs/populate.html
+ - Create GET /user/requests/received with all the checks
+ - Create GET GET /user/connections
+
+
+# Episode-14 |Building Feed API & Pagination
+ - Logic for GET /feed API
+ - Explore the $nin , $and, $ne and other query operatorators
+ - Pagination
 
 
   
